@@ -1,0 +1,4 @@
+./mkAVI.sh -on 150
+
+tp --bakefile-to-autoconf-m3u8-v01-00  > a
+. a

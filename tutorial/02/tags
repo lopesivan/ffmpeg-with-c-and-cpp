@@ -1,0 +1,47 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+LIST_H	include/list.h	8;"	d
+List	include/list.h	/^} List;$/;"	t	typeref:struct:List_
+ListElmt	include/list.h	/^} ListElmt;$/;"	t	typeref:struct:ListElmt_
+ListElmt_	include/list.h	/^typedef struct ListElmt_ {$/;"	s
+List_	include/list.h	/^typedef struct List_ {$/;"	s
+QUEUE_H	include/queue.h	8;"	d
+Queue	include/queue.h	/^typedef List Queue;$/;"	t
+STACK_H	include/stack.h	8;"	d
+SaveFrame	src/tutorial01.c	/^void SaveFrame(AVFrame *pFrame, int width, int height, int iFrame)$/;"	f
+Stack	include/stack.h	/^typedef List Stack;$/;"	t
+data	include/list.h	/^void               *data;$/;"	m	struct:ListElmt_
+destroy	include/list.h	/^void               (*destroy)(void *data);$/;"	m	struct:List_
+head	include/list.h	/^ListElmt           *head;$/;"	m	struct:List_
+list_data	include/list.h	67;"	d
+list_destroy	src/list.c	/^void list_destroy(List *list)$/;"	f
+list_head	include/list.h	59;"	d
+list_init	src/list.c	/^void list_init(List *list, void (*destroy)(void *data))$/;"	f
+list_ins_next	src/list.c	/^int list_ins_next(List *list, ListElmt *element, const void *data)$/;"	f
+list_is_head	include/list.h	63;"	d
+list_is_tail	include/list.h	65;"	d
+list_next	include/list.h	69;"	d
+list_rem_next	src/list.c	/^int list_rem_next(List *list, ListElmt *element, void **data)$/;"	f
+list_size	include/list.h	57;"	d
+list_tail	include/list.h	61;"	d
+main	src/tutorial01.c	/^int main(int argc, char *argv[])$/;"	f
+match	include/list.h	/^int                (*match)(const void *key1, const void *key2);$/;"	m	struct:List_
+next	include/list.h	/^struct ListElmt_   *next;$/;"	m	struct:ListElmt_	typeref:struct:ListElmt_::ListElmt_
+queue_dequeue	src/queue.c	/^int queue_dequeue(Queue *queue, void **data) {$/;"	f
+queue_destroy	include/queue.h	30;"	d
+queue_enqueue	src/queue.c	/^int queue_enqueue(Queue *queue, const void *data) {$/;"	f
+queue_init	include/queue.h	28;"	d
+queue_peek	include/queue.h	36;"	d
+queue_size	include/queue.h	38;"	d
+size	include/list.h	/^int                size;$/;"	m	struct:List_
+stack_destroy	include/stack.h	30;"	d
+stack_init	include/stack.h	28;"	d
+stack_peek	include/stack.h	36;"	d
+stack_pop	src/stack.c	/^int stack_pop(Stack *stack, void **data) {$/;"	f
+stack_push	src/stack.c	/^int stack_push(Stack *stack, const void *data) {$/;"	f
+stack_size	include/stack.h	38;"	d
+tail	include/list.h	/^ListElmt           *tail;$/;"	m	struct:List_

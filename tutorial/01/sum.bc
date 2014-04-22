@@ -1,0 +1,59 @@
+/*
+ * Podemos usar  o número de buffers para pegar uma imagem de nosso vídeo,
+ * como por exemplo, fazendo o NB ser igual a 1. Como no exemplo abaixo:
+ * SCREENSHOT DE TELA
+ * gst-launch-0.10 ximagesrc num-buffers=1
+ * ! ffmpegcolorspace
+ * ! pngenc
+ * ! filesink location=screenshot.png
+ *
+ * Mas o interessante mesmo é usar este valor para determinar o tempo do
+ * vídeo. Vejamos, para um NB igual a 150, temos que um buffer vale 1024,
+ * logo o seu tamanho é de 150*1024, dividindo pela frequencia 30kHz, temos
+ * um tempo de 5 segundos.
+ *
+ *  - sendo F a frequencia e seu valor é 30720
+ *  - sendo S o tamanho de 1 buffer
+ *  - T Tempo de gravação do vídeo
+ *
+ *     NB x S
+ *   ----------  = T
+ *       F
+ *
+ *   para um T = 23.5 segundos, temos
+ *
+ *            F x T      30720 x 23.5
+ *    NB =   -------- = -------------   =  705
+ *              S          1024
+ *
+ *    NB =  705
+ *
+ * $ ffmpeg -i video.avi
+ * Input #0, avi, from 'video.avi':
+ * Duration: 00:00:23.50, start: 0.000000, bitrate: 442375 kb/s
+ * Stream #0.0: Video: rawvideo, yuyv422, 1280x720, 30 tbr, 30 tbn, 30 tbc
+ *
+ * NB=$1
+ */
+scale = 8
+
+define nb(t){
+	return 30720*t/1024
+}
+
+define tm(nb){
+	return 1024*nb/30720
+}
+
+define pnb(time){
+	print "time: ", time, " secons\n"
+	print "nb  : ", nb(time), "\n"
+}
+
+define pt(nb){
+	print "nb  : ", nb, "\n"
+	print "time: ", tm(nb), " secons\n"
+}
+
+
+

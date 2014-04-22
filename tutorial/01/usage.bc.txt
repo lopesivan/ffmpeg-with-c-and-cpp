@@ -1,0 +1,27 @@
+$ bc sum.bc
+bc 1.06.95
+Copyright 1991-1994, 1997, 1998, 2000, 2004, 2006 Free Software Foundation, Inc.
+This is free software with ABSOLUTELY NO WARRANTY.
+For details type `warranty'.
+pt(33)
+nb  : 33
+time: 1.10000000 secons
+0
+pt(750)
+nb  : 750
+time: 25.00000000 secons
+0
+pt(75)
+nb  : 75
+time: 2.50000000 secons
+0
+pnb(200)
+time: 200 secons
+nb  : 6000.00000000
+0
+pnb(5)
+time: 5 secons
+nb  : 150.00000000
+0
+
+quit

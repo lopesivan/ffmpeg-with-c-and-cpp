@@ -1,0 +1,46 @@
+!!! XML
+/
+  $Id: hello.bkl 31612 2005-01-27 22:47:37Z VS $
+
+/
+  Document   : hello.bkl
+  Created on : #{Time.new}
+  Author     : ivan
+  Description:
+  Purpose of the document follows.
+
+%makefile
+  %include{:file=>"presets/simple.bkl"}/
+
+  - includes = [ "./include" ]
+
+  %exe{:id       => "tutorial02",
+       :template => "simple"}
+
+    /
+      GNUmakefile
+    %if{ :cond => "FORMAT=='gnu'"}
+      %ldflags
+        `pkg-config --libs libavformat libavcodec libswscale libavutil sdl`
+      %cflags
+        `pkg-config --cflags libavformat libavcodec libswscale libavutil sdl`
+
+    /
+      Sources Files:
+
+    - sources = Dir.glob("src/*.c")
+    %sources
+      - sources.each do |src|
+        =src
+
+    - includes.each do |inc|
+      %include
+        =inc
+
+    /
+      Headers Files:
+
+    - headers = Dir.glob("include/*.h")
+    %headers
+      - headers.each do |inc|
+        =inc

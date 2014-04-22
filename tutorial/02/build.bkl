@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<!--
+  $Id: hello.bkl 31612 2005-01-27 22:47:37Z VS $
+-->
+<!--
+  Document   : hello.bkl
+  Created on : Tue Nov 06 04:38:24 -0200 2012
+  Author     : ivan
+  Description:
+  Purpose of the document follows.
+-->
+<makefile>
+  <include file='presets/simple.bkl' />
+  <exe id='tutorial02' template='simple'>
+    <!--
+      GNUmakefile
+    -->
+    <if cond="FORMAT=='gnu'">
+      <ldflags>
+        `pkg-config --libs libavformat libavcodec libswscale libavutil sdl`
+      </ldflags>
+      <cflags>
+        `pkg-config --cflags libavformat libavcodec libswscale libavutil sdl`
+      </cflags>
+    </if>
+    <!--
+      Sources Files:
+    -->
+    <sources>
+      src/queue.c
+      src/list.c
+      src/stack.c
+      src/tutorial02.c
+    </sources>
+    <include>
+      ./include
+    </include>
+    <!--
+      Headers Files:
+    -->
+    <headers>
+      include/queue.h
+      include/list.h
+      include/stack.h
+    </headers>
+  </exe>
+</makefile>
