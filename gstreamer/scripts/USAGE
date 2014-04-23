@@ -1,0 +1,2 @@
+./mkAVI.sh -on 10
+./mkAVI.sh 10
