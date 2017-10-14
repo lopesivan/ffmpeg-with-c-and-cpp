@@ -1,0 +1,157 @@
+Recently I have been studying the h.264 video codec and
+reading the ISO spec. h.264 a much more sophisticated codec
+than MPEG-2, which means that a well-implemented h.264
+encoder has more compression tools at its disposal than the
+equivalent MPEG-2 encoder. But all that sophistication comes
+at a price: h.264 also has a big, complicated specification
+with a plethora of options, many of which are not commonly
+used, and it takes expertise to understand which parts are
+important to solve a given problem.
+
+As a bit of a parlor trick, I decided to write the simplest
+possible h.264 encoder. I was able to do it in about 30 lines
+of code—although truth in advertising compels me to admit
+that it doesn’t actually compress the video at all!
+
+While I don’t want to balloon this blog post with a detailed
+description of h.264, a little background is in order. An
+h.264 stream contains the encoded video data along with
+various parameters needed by a decoder in order to decode the
+video data. To structure this data, the bitstream consists of
+a sequence of Network Abstraction Layer (NAL) units.
+
+Previous MPEG specifications allowed pictures to be coded as
+I-frames, P-frames, or B-frames. h.264 is more complex and
+wonderful. It allows individual frames to be coded as
+multiple slices, each of which can be of type I, P, or B, or
+even more esoteric types. This feature can be used in
+creative ways to achieve different video coding goals. In our
+encoder we will use one slice per frame for simplicity, and
+we will use all I-frames.
+
+As with previous MPEG specifications, in h.264 each slice
+consists of one or more 16×16 macroblocks. Each macroblock in
+our 4:2:0 sampling scheme contains 16×16 luma samples, and
+two 8×8 blocks of chroma samples. For this simple encoder, I
+won’t be compressing the video data at all, so the samples
+will be directly copied into the h.264 output.
+
+With that background in mind, for our simplest possible
+encoder, there are three NALs we have to emit:
+
+Sequence Parameter Set (SPS): Once per stream
+Picture Parameter Set (PPS): Once per stream
+Slice Header: Once per video frame
+Slice Header information
+Macroblock Header: Once per macroblock
+Coded Macroblock Data: The actual coded video for the macroblock
+Since the SPS, the PPS, and the slice header are static for
+this application, I was able to hand-code them and include
+them in my encoder as a sequence of magic bits.
+
+Putting it all together, I came up with the following code
+for what I call “hello264”:
+
+#include <stdio.h>
+#include <stdlib.h>
+/* SQCIF */
+#define LUMA_WIDTH 128
+#define LUMA_HEIGHT 96
+#define CHROMA_WIDTH LUMA_WIDTH / 2
+#define CHROMA_HEIGHT LUMA_HEIGHT / 2
+/* YUV planar data, as written by ffmpeg */
+typedef struct
+{
+uint8_t Y[LUMA_HEIGHT][LUMA_WIDTH];
+uint8_t Cb[CHROMA_HEIGHT][CHROMA_WIDTH];
+uint8_t Cr[CHROMA_HEIGHT][CHROMA_WIDTH];
+} __attribute__((__packed__)) frame_t;
+frame_t frame;
+/* H.264 bitstreams */
+const uint8_t sps[] = { 0x00, 0x00, 0x00, 0x01, 0x67, 0x42, 0x00,
+0x0a, 0xf8, 0x41, 0xa2 };
+const uint8_t pps[] = { 0x00, 0x00, 0x00, 0x01, 0x68, 0xce,
+0x38, 0x80 };
+const uint8_t slice_header[] = { 0x00, 0x00, 0x00, 0x01, 0x05, 0x88,
+0x84, 0x21, 0xa0 };
+const uint8_t macroblock_header[] = { 0x0d, 0x00 };
+/* Write a macroblock's worth of YUV data in I_PCM mode */
+void macroblock(const int i, const int j)
+{
+int x, y;
+if (! ((i == 0) && (j == 0)))
+{
+fwrite(&macroblock_header, 1, sizeof(macroblock_header),
+stdout);
+}
+for(x = i*16; x < (i+1)*16; x++)
+for (y = j*16; y < (j+1)*16; y++)
+fwrite(&frame.Y[x][y], 1, 1, stdout);
+for (x = i*8; x < (i+1)*8; x++)
+for (y = j*8; y < (j+1)*8; y++)
+fwrite(&frame.Cb[x][y], 1, 1, stdout);
+for (x = i*8; x < (i+1)*8; x++)
+for (y = j*8; y < (j+1)*8; y++)
+fwrite(&frame.Cr[x][y], 1, 1, stdout);
+}
+/* Write out PPS, SPS, and loop over input, writing out I slices */
+int main(int argc, char **argv)
+{
+int i, j;
+fwrite(sps, 1, sizeof(sps), stdout);
+fwrite(pps, 1, sizeof(pps), stdout);
+while (! feof(stdin))
+{
+fread(&frame, 1, sizeof(frame), stdin);
+fwrite(slice_header, 1, sizeof(slice_header), stdout);
+for (i = 0; i < LUMA_HEIGHT/16 ; i++)
+for (j = 0; j < LUMA_WIDTH/16; j++)
+macroblock(i, j);
+fputc(0x80, stdout); /* slice stop bit */
+}
+return 0;
+}
+(This source code is available as a single file here.)
+
+In main(), the encoder writes out the SPS and PPS. Then it
+reads YUV data from standard input, stores it in a frame
+buffer, and then writes out a h.264 slice header. It then
+loops over each macroblock in the frame and calls the
+macroblock() function to output a macroblock header
+indicating the macroblock is coded as I_PCM, and inserts the
+YUV data.
+
+To use the code, you will need some uncompressed video. To
+generate this, I used the ffmpeg package to convert a
+QuickTime movie from my Kodak Zi8 video camera from h.264 to
+SQCIF (128×96) planar YUV format sampled at 4:2:0:
+
+ffmpeg.exe -i angel.mov -s sqcif -pix_fmt yuv420p angel.yuv
+I compile the h.264 encoder:
+
+gcc –Wall –ansi hello264.c –o hello264
+And run it:
+
+hello264 <angel.yuv >angel.264
+Finally, I use ffmpeg to copy the raw h.264 NAL units into an
+MP4 file:
+
+ffmpeg.exe -f h264 -i angel.264 -vcodec copy angel.mp4
+Here is the resulting output:
+
+
+
+There you have it—a complete h.264 encoder that uses minimal
+CPU cycles, with output larger than its input!
+
+The next thing to add to this encoder would be CAVLC coding
+of macroblocks and intra prediction. The encoder would still
+be lossless at this point, but there would start to be
+compression of data. After that, the next logical step would
+be quantization to allow lossy compression, and then I would
+add P slices. As a development methodology, I prefer to bring
+up a simplistic version of an application, get it running,
+and then add refinements iteratively.
+
+UPDATE 4/20/11: I’ve written more about the Sequence
+Parameter Set (SPS) here.
